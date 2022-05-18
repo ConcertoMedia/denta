@@ -32,3 +32,20 @@ Route::apiResource('/cities','App\Http\Controllers\CityController');
 Route::apiResource('/suppliers','App\Http\Controllers\SupplierController');
 
 Route::apiResource('/categories','App\Http\Controllers\CategoryController');
+
+########################### Begin Admin API ########################
+Route::group([
+
+    'middleware' => 'api',
+    'prefix' => 'admin',
+    'namespace' => '/Admin'
+
+], function ($router) {
+
+    Route::post('login', 'AdminAuthController@login');
+    Route::post('logout', 'AdminAuthController@logout');
+    Route::post('refresh', 'AdminAuthController@refresh');
+    Route::post('me', 'AdminAuthController@me');
+
+});
+########################### End Admin API #########################
