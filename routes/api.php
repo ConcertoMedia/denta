@@ -49,3 +49,10 @@ Route::group([
 
 });
 ########################### End Admin API #########################
+
+Route::group([
+    'middleware'=>['api'],
+    'namespace'=>'Api'
+],function(){
+    Route::get('/test',function(){return 'hi';});
+});
