@@ -3,6 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SupplierController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,3 +23,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+Route::apiResource('/admins','App\Http\Controllers\AdminController');
+
+Route::apiResource('/cities','App\Http\Controllers\CityController');
+
+Route::apiResource('/suppliers','App\Http\Controllers\SupplierController');
+
+Route::apiResource('/categories','App\Http\Controllers\CategoryController');
