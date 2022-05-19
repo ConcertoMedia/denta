@@ -35,24 +35,18 @@ Route::apiResource('/categories','App\Http\Controllers\CategoryController');
 
 ########################### Begin Admin API ########################
 Route::group([
-
-    'middleware' => 'api',
-    'prefix' => 'admin',
-    'namespace' => '/Admin'
-
-], function ($router) {
-
-    Route::post('login', 'AdminAuthController@login');
-    Route::post('logout', 'AdminAuthController@logout');
-    Route::post('refresh', 'AdminAuthController@refresh');
-    Route::post('me', 'AdminAuthController@me');
-
+    'prefix'=>'admin',
+    'middleware'=>['api','checkPassword'],
+    'namespace'=>'App\Http\Controllers\Admin'
+],function(){
+    Route::post('/login','AdminAuthController@login')->name('admin.login');
 });
-########################### End Admin API #########################
 
 Route::group([
-    'middleware'=>['api'],
-    'namespace'=>'Api'
+    'prefix'=>'admin',
+    'middleware'=>['api','checkPassword','checkAdminToken:admin-api'],
+    'namespace'=>'App\Http\Controllers\Admin'
 ],function(){
-    Route::get('/test',function(){return 'hi';});
+    Route::post('/logout','AdminAuthController@logout')->name('admin.logout');
 });
+########################### End Admin API ##########################

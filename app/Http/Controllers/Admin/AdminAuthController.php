@@ -2,84 +2,74 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Validator;
+use Tymon\JWTAuth\JWT;
+use App\Traits\GeneralTrait;
+use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
 
 class AdminAuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login']]);
+    use GeneralTrait;
+
+    public function login(Request $request){
+        try {
+            //validation
+            $rules=[
+                'username' => 'required|exists:admins',
+                'password' => 'required'
+            ];
+            $validator = Validator::make($request->all(),$rules);
+            if($validator->fails()){
+                $code = $this->returnCodeAccordingToInput($validator);
+                return $this->returnValidationError($code,$validator);
+            }
+
+            //login
+            $credentials = $request->only(['username','password']);
+            $token = Auth::guard('admin-api')->attempt($credentials);
+            if(!$token){
+                //return $this->returnError('E001','Credentials is not correct');
+                return $token;
+            }
+
+            //return token
+            //return $this->returnData('token',$token);
+            //return data with token
+            $admin = Auth::guard('admin-api')->user();
+            $admin->token = $token;
+            return $this->returnData('admin',$admin);
+        } catch (\Exception $e) {
+            return $this->returnError($e->getCode(),$e->getMessage());
+        }
+        
     }
+    public function logout(Request $request){
+        $token = $request -> header('token');
+        if($token){
+            try {
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login()
-    {
-        $credentials = request(['email', 'password']);
-
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+                JWTAuth::setToken($token)->invalidate(); //logout
+            }catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e){
+                return  $this -> returnError('','Something went wrongs');
+            }
+            return $this->returnSuccess('Logged out successfully');
+        }else{
+            $this -> returnError('','Something went wrongs');
         }
 
-        return $this->respondWithToken($token);
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me()
-    {
-        return response()->json(auth()->user());
-    }
-
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
+        
+    public function logout2()
     {
         auth()->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
-    }
+    
 }

@@ -28,8 +28,8 @@ trait GeneralTrait
         ]);
     }
 
-    public function returnValidationError($validator){
-        return $this->returnError('E01',$validator->errors()->first());
+    public function returnValidationError($errNum,$validator){
+        return $this->returnError($errNum ='E01',$validator->errors()->first());
     }
 
     public function returnCodeAccordingToInput($validator){
@@ -206,6 +206,8 @@ trait GeneralTrait
 
         else if ($input == "checkoutId")
             return 'E056';
+        else if ($input == "username")
+            return 'E057';
 
         else
             return "";
