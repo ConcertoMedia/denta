@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 
-use Auth;
-use Validator;
+//use Auth;
 use Tymon\JWTAuth\JWT;
 use App\Traits\GeneralTrait;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
+
 
 class AdminAuthController extends Controller
 {
@@ -32,8 +35,7 @@ class AdminAuthController extends Controller
             $credentials = $request->only(['username','password']);
             $token = Auth::guard('admin-api')->attempt($credentials);
             if(!$token){
-                //return $this->returnError('E001','Credentials is not correct');
-                return $token;
+                return $this->returnError('E001','Credentials is not correct');
             }
 
             //return token
@@ -51,7 +53,6 @@ class AdminAuthController extends Controller
         $token = $request -> header('token');
         if($token){
             try {
-
                 JWTAuth::setToken($token)->invalidate(); //logout
             }catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e){
                 return  $this -> returnError('','Something went wrongs');

@@ -7,7 +7,7 @@ use Closure;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Request;
 
-class Checkdminoken
+class CheckAdminToken
 {
     /**
      * Handle an incoming request.
